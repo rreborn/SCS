@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: 08 Mar 2016 pada 14.47
+-- Generation Time: 14 Mar 2016 pada 05.41
 -- Versi Server: 5.6.24
 -- PHP Version: 5.6.8
 
@@ -82,7 +82,6 @@ CREATE TABLE IF NOT EXISTS `spj` (
   `tanggal_buat` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `waktu_berangkat` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `waktu_kembali` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `tracking` varchar(45) NOT NULL,
   `tekanan_awal` double NOT NULL,
   `tekanan_akhir` double NOT NULL,
   `cv` double NOT NULL,
@@ -96,7 +95,8 @@ CREATE TABLE IF NOT EXISTS `spj` (
   `iduser_supir` int(11) NOT NULL,
   `iduser_supervisor` int(11) NOT NULL,
   `idstasiun_asal` int(11) NOT NULL,
-  `idstasiun_tujuan` int(11) NOT NULL
+  `idstasiun_tujuan` int(11) NOT NULL,
+  `idtracking` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -123,33 +123,9 @@ CREATE TABLE IF NOT EXISTS `tracking` (
   `idtracking` int(11) NOT NULL,
   `longitude` double NOT NULL,
   `latitude` double NOT NULL,
-  `waktu` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `waktu` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `idspj` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
-
---
--- Dumping data untuk tabel `tracking`
---
-
-INSERT INTO `tracking` (`idtracking`, `longitude`, `latitude`, `waktu`, `idspj`) VALUES
-(3, 3.6, 4.2, '2016-03-08 20:45:07', 0),
-(4, 112.68641610022169, -7.278114494055761, '2016-03-08 20:45:07', 0),
-(5, 112.68647856381541, -7.278187372690023, '2016-03-08 20:45:07', 0),
-(6, 112.68647856381541, -7.278187372690023, '2016-03-08 20:45:07', 0),
-(7, 112.68627776978457, -7.278129154049431, '2016-03-08 20:45:07', 0),
-(8, 112.68627776978457, -7.278129154049431, '2016-03-08 20:45:07', 0),
-(9, 112.6862667983735, -7.278219452517824, '2016-03-08 20:45:07', 0),
-(10, 112.6862667983735, -7.278219452517824, '2016-03-08 20:45:07', 0),
-(11, 112.6862667983735, -7.278219452517824, '2016-03-08 20:45:07', 0),
-(12, 112.6862667983735, -7.278219452517824, '2016-03-08 20:45:07', 0),
-(13, 112.68640250786598, -7.2781605829426255, '2016-03-08 20:45:07', 0),
-(14, 112.68640242191292, -7.278154299693844, '2016-03-08 20:45:07', 0),
-(15, 112.68640242191292, -7.278154299693844, '2016-03-08 20:45:07', 0),
-(16, 112.68640242191292, -7.278154299693844, '2016-03-08 20:45:07', 0),
-(17, 112.68640242191292, -7.278154299693844, '2016-03-08 20:45:07', 0),
-(18, 112.68640242191292, -7.278154299693844, '2016-03-08 20:45:07', 0),
-(19, 112.68638868214889, -7.278136593378655, '2016-03-08 20:45:07', 0),
-(20, 0.4, 0.5, '2016-03-08 20:46:29', 2);
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -212,7 +188,7 @@ ALTER TABLE `jenis_artikel`
 -- Indexes for table `spj`
 --
 ALTER TABLE `spj`
-  ADD PRIMARY KEY (`idspj`), ADD KEY `idtruk` (`idtruk`,`iduser_supir`,`iduser_supervisor`,`idstasiun_asal`,`idstasiun_tujuan`), ADD KEY `iduser_supir` (`iduser_supir`), ADD KEY `iduser_supervisor` (`iduser_supervisor`), ADD KEY `idstasiun_asal` (`idstasiun_asal`), ADD KEY `idstasiun_tujuan` (`idstasiun_tujuan`);
+  ADD PRIMARY KEY (`idspj`), ADD KEY `idtruk` (`idtruk`,`iduser_supir`,`iduser_supervisor`,`idstasiun_asal`,`idstasiun_tujuan`), ADD KEY `iduser_supir` (`iduser_supir`), ADD KEY `iduser_supervisor` (`iduser_supervisor`), ADD KEY `idstasiun_asal` (`idstasiun_asal`), ADD KEY `idstasiun_tujuan` (`idstasiun_tujuan`), ADD KEY `idtracking` (`idtracking`), ADD KEY `idtracking_2` (`idtracking`);
 
 --
 -- Indexes for table `stasiun`
@@ -224,7 +200,7 @@ ALTER TABLE `stasiun`
 -- Indexes for table `tracking`
 --
 ALTER TABLE `tracking`
-  ADD PRIMARY KEY (`idtracking`);
+  ADD PRIMARY KEY (`idtracking`), ADD KEY `idspj` (`idspj`), ADD KEY `idspj_2` (`idspj`);
 
 --
 -- Indexes for table `truk`
@@ -271,7 +247,7 @@ ALTER TABLE `stasiun`
 -- AUTO_INCREMENT for table `tracking`
 --
 ALTER TABLE `tracking`
-  MODIFY `idtracking` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=21;
+  MODIFY `idtracking` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `truk`
 --
@@ -301,7 +277,14 @@ ADD CONSTRAINT `spj_ibfk_1` FOREIGN KEY (`idtruk`) REFERENCES `truk` (`idtruk`),
 ADD CONSTRAINT `spj_ibfk_2` FOREIGN KEY (`iduser_supir`) REFERENCES `user` (`iduser`),
 ADD CONSTRAINT `spj_ibfk_3` FOREIGN KEY (`iduser_supervisor`) REFERENCES `user` (`iduser`),
 ADD CONSTRAINT `spj_ibfk_4` FOREIGN KEY (`idstasiun_asal`) REFERENCES `stasiun` (`idstasiun`),
-ADD CONSTRAINT `spj_ibfk_5` FOREIGN KEY (`idstasiun_tujuan`) REFERENCES `stasiun` (`idstasiun`);
+ADD CONSTRAINT `spj_ibfk_5` FOREIGN KEY (`idstasiun_tujuan`) REFERENCES `stasiun` (`idstasiun`),
+ADD CONSTRAINT `spj_ibfk_6` FOREIGN KEY (`idtracking`) REFERENCES `tracking` (`idtracking`);
+
+--
+-- Ketidakleluasaan untuk tabel `tracking`
+--
+ALTER TABLE `tracking`
+ADD CONSTRAINT `tracking_ibfk_1` FOREIGN KEY (`idspj`) REFERENCES `spj` (`idspj`);
 
 --
 -- Ketidakleluasaan untuk tabel `user`
